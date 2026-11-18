@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Placeholder parameters (we will replace them with your real ones)
-I = 0.01      # pendulum inertia about the pivot (kg m^2)
-J = 0.001     # wheel inertia (kg m^2)
-mgl = 0.2     # m*g*l (N m)
+I = 0.0225
+J = 0.00027
+mgl = 0.88
 u_max = 0.5   # max wheel torque (N m)
 
 # PD gains: stable only if Kp > mgl
