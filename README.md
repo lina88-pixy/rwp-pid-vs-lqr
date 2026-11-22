@@ -10,7 +10,7 @@ How much sensor noise and actuation delay can PID and LQR controllers tolerate b
 ## Hypotheses and findings
 1. **LQR outperforms PID in the nominal case.** Partially supported. LQR returns the wheel speed to zero and has a slightly smaller peak angle, but it settles more slowly and uses more torque.
 2. **LQR loses more stability margin to delay than PID.** Supported. Delay margin: 10 ms for LQR, 70 ms for PID.
-3. **A Kalman filter restores performance under sensor noise.** Not tested yet.
+3. **A Kalman filter restores performance under sensor noise.** Supported for noise: it raises the noise tolerance of both controllers. It does not help with actuation delay.
 
 ## Metrics
 - **Success rate:** fraction of runs where the pendulum angle never exceeds 30°.
@@ -27,7 +27,7 @@ How much sensor noise and actuation delay can PID and LQR controllers tolerate b
 - [x] Comparison after a push disturbance
 - [x] Sensor noise tests
 - [x] Actuation delay tests
-- [ ] Kalman filter
+- [x] Kalman filter
 
 ## Results 
 
@@ -51,6 +51,18 @@ LQR returns the wheel speed to zero, while PID leaves the wheel spinning. PID se
 
 Each condition was run 10 times with different random seeds. Noise is Gaussian on the angle and on the angular velocity. The delay experiments use 0.5° of angle noise.
 
+### With a Kalman filter
+![Kalman filter](results_kalman.png)
+
+| Controller | Max angle noise with 100% success (deg) | Delay margin (ms) |
+|---|---|---|
+| PID | 12 | 70 |
+| PID + Kalman | 32 (highest level tested) | 65 |
+| LQR | 4 | 10 |
+| LQR + Kalman | 8 | 10 |
+
+The filter estimates angle, angular velocity and wheel speed from noisy measurements using the same linear model as the controller.
+
 ## Model
 State: pendulum angle, angular velocity, wheel speed. Parameters (estimated from the simulation model): pendulum inertia 0.0225 kg·m², wheel inertia 0.00027 kg·m², m·g·l = 0.88 N·m, torque limit 0.5 N·m.
 
@@ -59,6 +71,7 @@ State: pendulum angle, angular velocity, wheel speed. Parameters (estimated from
 pip install -r requirements.txt
 python src/sim_lqr.py
 python src/sim_noise_delay.py
+python src/sim_kalman.py
 ```
 
 ## Limitations
@@ -66,8 +79,6 @@ python src/sim_noise_delay.py
 - Only one push strength was tested.
 - Wheel speed is not limited, so simulated speeds are unrealistic.
 - Parameters are estimates from a simulation model, not a physical robot.
-- The Kalman filter is not implemented yet.
+- The Kalman filter uses the same model as the simulation, so its benefit is optimistic. Real model errors would reduce it.
 
-## Next steps
-Add a Kalman filter, test other tunings, and compare with a physical or higher-fidelity simulation.
 
